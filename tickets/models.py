@@ -5,8 +5,8 @@ class Ticket(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     subject = models.CharField(max_length=200)
     description = models.TextField()
-    priority = models.CharField(max_length=10, choices=[('low', 'Low'), ('medium', 'Medium'), ('high', 'High')])
-    status = models.CharField(max_length=10, choices=[('open', 'Open'), ('in_progress', 'In Progress'), ('resolved', 'Resolved'), ('closed', 'Closed')])
+    priority = models.CharField(max_length=50, default='medium', choices=[('low', 'Low'), ('medium', 'Medium'), ('high', 'High')])
+    status = models.CharField(max_length=50, default='open', choices=[('open', 'Open'), ('in_progress', 'In Progress'), ('resolved', 'Resolved'), ('closed', 'Closed')])
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return self.subject
