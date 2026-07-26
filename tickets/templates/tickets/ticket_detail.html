@@ -1,0 +1,141 @@
+{% extends 'tickets/base.html' %}
+{% block title %}{{ ticket.subject }}{% endblock %}
+{% block content %}
+<div class="container" style="max-width: 860px;">
+    <!-- Header -->
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-4">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <h4 class="fw-bold mb-0">{{ ticket.subject }}</h4>
+            {% if ticket.priority == 'low' %}
+            <span class="badge fw-medium px-2 py-1" style="background: #F3F4F6; color: #6B7280; font-size: 0.78rem;">Low</span>
+            {% elif ticket.priority == 'medium' %}
+            <span class="badge fw-medium px-2 py-1" style="background: #FEF3C7; color: #92400E; font-size: 0.78rem;">Medium</span>
+            {% elif ticket.priority == 'high' %}
+            <span class="badge fw-medium px-2 py-1" style="background: #FEE2E2; color: #991B1B; font-size: 0.78rem;">High</span>
+            {% endif %}
+            {% if ticket.status == 'open' %}
+            <span class="badge fw-medium px-2 py-1" style="background: #EFF6FF; color: #1E40AF; font-size: 0.78rem;">Open</span>
+            {% elif ticket.status == 'in_progress' %}
+            <span class="badge fw-medium px-2 py-1" style="background: #FEF3C7; color: #92400E; font-size: 0.78rem;">In Progress</span>
+            {% elif ticket.status == 'resolved' %}
+            <span class="badge fw-medium px-2 py-1" style="background: #ECFDF5; color: #065F46; font-size: 0.78rem;">Resolved</span>
+            {% elif ticket.status == 'closed' %}
+            <span class="badge fw-medium px-2 py-1" style="background: #F3F4F6; color: #4B5563; font-size: 0.78rem;">Closed</span>
+            {% endif %}
+        </div>
+        {% if user.is_staff %}
+        <form method="post" action="{% url 'update_status' ticket.id %}" class="d-flex align-items-center gap-2">
+            {% csrf_token %}
+            <select name="status" class="form-select form-select-sm" style="border-radius: 6px; border: 1px solid #D1D5DB; font-size: 0.85rem; padding: 0.35rem 0.75rem; width: auto;">
+                <option value="open" {% if ticket.status == 'open' %}selected{% endif %}>Open</option>
+                <option value="in_progress" {% if ticket.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="resolved" {% if ticket.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                <option value="closed" {% if ticket.status == 'closed' %}selected{% endif %}>Closed</option>
+            </select>
+            <button type="submit" class="btn btn-sm fw-semibold" style="background: #4F46E5; color: #fff; border-radius: 6px; font-size: 0.82rem; padding: 0.38rem 0.9rem; white-space: nowrap;">Update</button>
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- Original Ticket Description -->
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 10px;">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <div class="d-flex align-items-center justify-content-center rounded-circle fw-semibold" style="width: 34px; height: 34px; background: #EEF2FF; color: #4F46E5; font-size: 0.8rem;">
+                    {{ ticket.user.username|first|upper }}
+                </div>
+                <div>
+                    <span class="fw-semibold" style="font-size: 0.9rem;">{{ ticket.user.username }}</span>
+                    <span class="text-muted" style="font-size: 0.8rem;"> &middot; {{ ticket.created_at|date:"M j, Y g:i A" }}</span>
+                </div>
+            </div>
+            <p class="mb-0" style="font-size: 0.95rem; line-height: 1.6; color: #374151; white-space: pre-wrap;">{{ ticket.description }}</p>
+        </div>
+    </div>
+
+    <!-- Conversation Section -->
+    <div class="mb-4">
+        <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-chat-dots" style="color: #4F46E5;"></i> Conversation
+            <span class="badge fw-medium rounded-pill" style="background: #F3F4F6; color: #6B7280; font-size: 0.78rem;">{{ replies|length }}</span>
+        </h5>
+
+        {% if replies %}
+        <div class="d-flex flex-column gap-3">
+            {% for reply in replies %}
+            {% if reply.author == ticket.user %}
+            <!-- User reply (left) -->
+            <div class="d-flex gap-3" style="max-width: 85%;">
+                <div class="flex-shrink-0 d-flex align-items-start mt-1">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle fw-semibold" style="width: 34px; height: 34px; background: #F3F4F6; color: #6B7280; font-size: 0.8rem;">
+                        {{ reply.author.username|first|upper }}
+                    </div>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="card border-0 shadow-sm" style="border-radius: 10px;">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="fw-semibold" style="font-size: 0.85rem;">{{ reply.author.username }}</span>
+                                <span class="text-muted" style="font-size: 0.75rem;">{{ reply.created_at|date:"M j, Y g:i A" }}</span>
+                            </div>
+                            <p class="mb-0" style="font-size: 0.92rem; line-height: 1.5; color: #374151; white-space: pre-wrap;">{{ reply.message }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- Staff reply (right) -->
+            <div class="d-flex flex-row-reverse gap-3 ms-auto" style="max-width: 85%;">
+                <div class="flex-shrink-0 d-flex align-items-start mt-1">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle fw-semibold" style="width: 34px; height: 34px; background: #EEF2FF; color: #4F46E5; font-size: 0.8rem;">
+                        {{ reply.author.username|first|upper }}
+                    </div>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="card border-0 shadow-sm" style="border-radius: 10px; border-left: 3px solid #4F46E5 !important; background: #F8F9FF;">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="fw-semibold" style="font-size: 0.85rem; color: #4F46E5;">
+                                    {% if reply.author.is_staff %}<i class="bi bi-shield-check me-1"></i>{% endif %}
+                                    {{ reply.author.username }}
+                                </span>
+                                <span class="text-muted" style="font-size: 0.75rem;">{{ reply.created_at|date:"M j, Y g:i A" }}</span>
+                            </div>
+                            <p class="mb-0" style="font-size: 0.92rem; line-height: 1.5; color: #374151; white-space: pre-wrap;">{{ reply.message }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-chat-square-text" style="font-size: 2rem; color: #D1D5DB;"></i>
+            <p class="text-muted small mt-2 mb-0">No replies yet. Be the first to respond.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Reply Form -->
+    <div class="card border-0 shadow-sm" style="border-radius: 10px;">
+        <div class="card-body p-4">
+            <h6 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-reply" style="color: #4F46E5;"></i> Post a Reply
+            </h6>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <textarea name="{{ form.message.name }}" id="{{ form.message.id_for_label }}" class="form-control" rows="4" placeholder="Write your reply..." required style="border: 1px solid #D1D5DB; border-radius: 8px; padding: 0.65rem 0.85rem; font-size: 0.92rem; resize: vertical;"></textarea>
+                </div>
+                <button type="submit" class="btn fw-semibold py-2 px-4 d-inline-flex align-items-center gap-2" style="background: #4F46E5; color: #fff; border-radius: 8px;">
+                    <i class="bi bi-send"></i> Post Reply
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<style>
+    .form-control:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,0.12); }
+</style>
+{% endblock %}

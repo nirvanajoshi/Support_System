@@ -1,0 +1,48 @@
+{% extends 'tickets/base.html' %}
+{% block title %}New Ticket{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-11 col-sm-10 col-md-8 col-lg-7 col-xl-6">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-body p-4 p-md-5">
+                    <div class="mb-4">
+                        <h4 class="fw-bold mb-1"><i class="bi bi-pencil-square me-2" style="color: #4F46E5;"></i>Submit a Support Ticket</h4>
+                        <p class="text-muted small mb-0">Describe your issue and we'll get back to you.</p>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ form.subject.id_for_label }}" class="form-label fw-medium" style="font-size: 0.88rem; color: #374151;">Subject</label>
+                            <input type="text" name="{{ form.subject.name }}" id="{{ form.subject.id_for_label }}" class="form-control" placeholder="Brief summary of your issue" required style="border: 1px solid #D1D5DB; border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.92rem;">
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label fw-medium" style="font-size: 0.88rem; color: #374151;">Description</label>
+                            <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" class="form-control" rows="6" placeholder="Provide details about your issue..." required style="border: 1px solid #D1D5DB; border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.92rem; resize: vertical;"></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label for="{{ form.priority.id_for_label }}" class="form-label fw-medium" style="font-size: 0.88rem; color: #374151;">Priority</label>
+                            <select name="{{ form.priority.name }}" id="{{ form.priority.id_for_label }}" class="form-select" style="border: 1px solid #D1D5DB; border-radius: 8px; padding: 0.6rem 0.85rem; font-size: 0.92rem;">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn fw-semibold py-2 px-4" style="background: #4F46E5; color: #fff; border-radius: 8px;">
+                                <i class="bi bi-send me-2"></i>Save
+                            </button>
+                            <a href="{% url 'ticket_list' %}" class="btn fw-semibold py-2 px-4" style="background: #F3F4F6; color: #374151; border-radius: 8px;">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .form-control:focus, .form-select:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,0.12); }
+</style>
+{% endblock %}
